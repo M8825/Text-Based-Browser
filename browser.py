@@ -1,3 +1,5 @@
+import argparse
+import os
 
 nytimes_com = '''
 This New Liquid Is Magnetic, and Mesmerizing
@@ -34,29 +36,63 @@ Twitter and Square Chief Executive Officer Jack Dorsey
  Tuesday, a signal of the strong ties between the Silicon Valley giants.
 '''
 
-# write your code here
+parser = argparse.ArgumentParser()
+parser.add_argument('dir_name', type=str)
+
+args = parser.parse_args()
+dir_path = args.dir_name
+
+if not os.access(dir_path, os.F_OK):
+    os.mkdir(dir_path)
+
+
+def file_name(f_name):
+    """ Format full path to file
+
+    :param f_name: Name of the file
+    :return: Full path
+    """
+    name = f_name[:-4] if '.' in f_name else f_name  # Assign without '.com' if it's present
+
+    return f'{dir_path}/{name}'
+
+
+def save_file(f_name, c):
+    path = file_name(f_name)
+    with open(path, 'w', encoding='utf-8') as f_article:
+        f_article.writelines(c)
+        f_article.close()
+
+
+def file_exists(f_name):
+    path = file_name(f_name)
+    return os.access(path, os.F_OK)
+
 
 while True:
     url = input()
     if url == 'exit':
-        break;
+        break
+
+    if '.' not in url and file_exists(url):  # If only valid filename have been passed and file exists.
+        f_path = file_name(url)
+        with open(f_path, 'r', encoding='utf-8') as file:
+            print(file.read())
+            file.close()
+            continue
+
+    if '.' not in url:  # If input is not proper URL
+        print('Error: Incorrect URL')
+        continue
 
     if url == 'bloomberg.com':
+        content = bloomberg_com
         print(bloomberg_com)
     elif url == 'nytimes.com':
+        content = nytimes_com
         print(nytimes_com)
+    else:
+        print('Error: Incorrect URL')
+        continue
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    save_file(url, content)
